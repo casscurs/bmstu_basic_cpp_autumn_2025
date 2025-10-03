@@ -1,5 +1,10 @@
 #include "algorithm.h"
 
+#include <cassert>
+#include <cctype>
+#include <cstring>
+#include <iostream>
+
 std::string clear_number(const std::string& str)
 {
   std::string result = {};
@@ -26,34 +31,49 @@ std::string clear_number(const std::string& str)
 
 std::string trim(const std::string& str)
 {
-  if (str.size() >= 4)
-  {
-    return str.substr(0, 4);
-  }
-  else
-  {
-    return str + std::string(4 - str.size(), '0');
-  }
+  return (str.size() >= 4) ? str.substr(0, 4)
+                           : (str + std::string(4 - str.size(), '0'));
 }
 
 bool isEqual(std::string text1, std::string text2)
 {
-  std::string res1 = convertTextToSound(text1);
-  std::string res2 = convertTextToSound(text2);
+  return convertTextToSound(text1) == convertTextToSound(text2);
+}
 
-  if (res1.compare(res2) == 0)
-    return true;
-  else
-    return false;
+char table(char chr)
+{
+  char symbol = ' ';
+
+  if (strchr("bfpv", chr) != nullptr)
+  {
+    symbol = '1';
+  }
+  if (strchr("cgjkqsxz", chr) != nullptr)
+  {
+    symbol = '2';
+  }
+  if (strchr("dt", chr) != nullptr)
+  {
+    symbol = '3';
+  }
+  if (strchr("l", chr) != nullptr)
+  {
+    symbol = '4';
+  }
+  if (strchr("mn", chr) != nullptr)
+  {
+    symbol = '5';
+  }
+  if (strchr("r", chr) != nullptr)
+  {
+    symbol = '6';
+  }
+  return symbol;
 }
 
 std::string convertTextToSound(std::string text)
 {
-  if (text == "")
-  {
-    std::string result = trim(text);
-    return result;
-  }
+  if (text == "") return trim(text);
 
   std::string buf = {};
 
@@ -71,33 +91,7 @@ std::string convertTextToSound(std::string text)
   {
     if (strchr("hwaeiouy", buf[i]) == nullptr)
     {
-      char symbol = buf[i];
-
-      if (strchr("bfpv", buf[i]) != nullptr)
-      {
-        symbol = '1';
-      }
-      if (strchr("cgjkqsxz", buf[i]) != nullptr)
-      {
-        symbol = '2';
-      }
-      if (strchr("dt", buf[i]) != nullptr)
-      {
-        symbol = '3';
-      }
-      if (strchr("l", buf[i]) != nullptr)
-      {
-        symbol = '4';
-      }
-      if (strchr("mn", buf[i]) != nullptr)
-      {
-        symbol = '5';
-      }
-      if (strchr("r", buf[i]) != nullptr)
-      {
-        symbol = '6';
-      }
-      buf1.push_back(symbol);
+      buf1.push_back(table(buf[i]));
     }
   }
 
@@ -113,33 +107,36 @@ int main(void)
   std::string text2{"Ashcroft"};
 
   assert(isEqual(text1, text2));
-  assert(convertTextToSound("Ashcraft") == std::string{"A261"});
+  assert(convertTextToSound("Ashcraft") == "A261");
 
   /* Регистр */
-  assert(convertTextToSound("ASHCRAFT") == std::string{"A261"});
+  assert(convertTextToSound("ASHCRAFT") == "A261");
 
   /* Удаление h и w */
-  assert(convertTextToSound("Hwhw") == std::string{"H000"});
+  assert(convertTextToSound("Hwhw") == "H000");
 
   /* Удаление гласных */
-  assert(convertTextToSound("Erie") == std::string{"E600"});
+  assert(convertTextToSound("Erie") == "E600");
 
   /* Числа идут подряд */
-  assert(convertTextToSound("Bfpv") == std::string{"B100"});
-  assert(convertTextToSound("BFPV") == std::string{"B100"});
+  assert(convertTextToSound("Bfpv") == "B100");
+  assert(convertTextToSound("BFPV") == "B100");
 
-  assert(convertTextToSound("Robert") == std::string{"R163"});
-  assert(convertTextToSound("Rupert") == std::string{"R163"});
+  assert(convertTextToSound("Robert") == "R163");
+  assert(convertTextToSound("Rupert") == "R163");
   assert(isEqual("Robert", "Rupert"));
 
   /* Пустая строка */
-  assert(convertTextToSound("") == std::string{"0000"});
+  assert(convertTextToSound("") == "0000");
 
   /* Дополнение пробелами */
-  assert(convertTextToSound("A") == std::string{"A000"});
+  assert(convertTextToSound("A") == "A000");
 
   /* Разные коды */
   assert(!isEqual("Tymczak", "Pfister"));
+
+  /* Доп. тесты */
+  assert(convertTextToSound("Tymczak") == "T520");
 
   std::cout << "Все блоки assert пройдены";
 
